@@ -8,4 +8,8 @@ RUN file=$(find /app/venv -path '*/weblate/settings_docker.py') && \
     test -n "$file" && \
     sed -i -E 's|^ADMINS = \(formataddr\(\(ADMIN_NAME, ADMIN_EMAIL\)\),\)$|ADMINS = () if ADMIN_EMAIL.endswith("@example.com") else (formataddr((ADMIN_NAME, ADMIN_EMAIL)),)|' "$file" && \
     grep -q '^ADMINS = () if ADMIN_EMAIL.endswith("@example.com")' "$file"
+RUN file=$(find /app/venv -path '*/weblate/accounts/tasks.py') && \
+    test -n "$file" && \
+    sed -i -E 's|^(        for mail in mails:)$|\1\n            if mail["address"].lower().endswith("@example.com"):\n                continue|' "$file" && \
+    grep -q '^            if mail\["address"\].lower().endswith("@example.com"):$' "$file"
 USER 1000
